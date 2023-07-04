@@ -10,14 +10,26 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.testng:testng:7.1.0'
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation group: 'org.testng', name: 'testng', version: '6.14.3'
     implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '2.41.0'
-    implementation group: 'com.aventstack', name: 'extentreports', version: '4.0.0'
+    implementation group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '5.3.3'
+    implementation group: 'com.aventstack', name: 'extentreports', version: '5.0.9'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.20.0'
+}
 
-
-
+task "localTest"(type: Test){
+   /* systemProperty 'browser',browser
+    systemProperty 'groupName',groupName*/
+    useTestNG(){
+     /*   parallel = testParallel
+        threadCount = threadCount as int*/
+       /* if(project.hasProperty("groupName")){
+            includeGroups groupName
+        }*/
+    }
 }
 
 test {
