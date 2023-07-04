@@ -18,7 +18,7 @@ public class WebTest extends BaseTest {
 
     @Test(description = "This test method to throw an exception")
     public void test2(){
-        pom().navigateTo("http://www.google.ca");
+        POM().navigateTo("http://www.google.ca");
             int i;
             i = 9 / 0;
     }
