@@ -5,8 +5,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import pageobject.web.BasePOM;
 
-public class GoogleHomePage extends BasePOM {
-    public GoogleHomePage(WebDriver driver){
+public class HomePage extends BasePOM {
+    public HomePage(WebDriver driver){
         super(driver);
     }
 

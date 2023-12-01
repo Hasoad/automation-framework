@@ -35,6 +35,5 @@ public class ExtentTestManager {
     public static void  setEnvironmentDetails(String browserName,String url){
         extentReports.setSystemInfo("Browser", browserName);
         extentReports.setSystemInfo("URL",url);
-
     }
 }

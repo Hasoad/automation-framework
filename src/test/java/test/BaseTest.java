@@ -4,6 +4,7 @@ import automation.framework.exception.ExceptionHandling;
 import automation.framework.reports.ExtentTestManager;
 import automation.framework.utils.Utils;
 import com.aventstack.extentreports.Status;
+import io.restassured.RestAssured;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import pageobject.web.POM;
@@ -18,37 +19,32 @@ import static automation.framework.web.webdriver.DriverFactory.*;
 
 public class BaseTest {
 
-    static ThreadLocal<POM> pom;
+    static ThreadLocal<POM> pom = new ThreadLocal<POM>();
     public static POM POM(){
         return pom.get();
     }
     String pathToConfigFile = System.getProperty("user.dir")+"/gradle.properties";
-  //  @Parameters(value = {"browser","threadCount","groupName"})
+
     @BeforeSuite
     public void beforeSuite(/*@Optional("") String browser,@Optional("") String threadCount, @Optional("")String groupName*/){
-        pom = new ThreadLocal<>();
+        System.out.println("********** inside before suite **********");
         try {
             Utils.globalProperties.load(new FileInputStream(pathToConfigFile));
         }catch (IOException e){
             ExceptionHandling.writeException("IOException in global properties");
         }
         ExtentTestManager.createExtentReports();
-      /*  if(!browser.isEmpty()){
-            Utils.globalProperties.setProperty("browser",browser);
-        }
-        if(!threadCount.isEmpty()){
-            Utils.globalProperties.setProperty("threadCount",threadCount);
-        }
-        if(!groupName.isEmpty()){
-            Utils.globalProperties.setProperty("groupName",groupName);
-        }*/
-       // ExtentTestManager.setEnvironmentDetails(browser,Utils.globalProperties.getProperty("executionURL"));
     }
     @BeforeMethod
     public void beforeMethod(Method method, ITestResult result){
-        setBrowser("chrome");
+        if(!Utils.globalProperties.getProperty("executionType").equalsIgnoreCase("api")) {
+            setBrowser(Utils.globalProperties.getProperty("browser"));
+        }else{
+            RestAssured.baseURI=Utils.globalProperties.getProperty("apiBaseURL");
+        }
+        pom.set(new POM(pathToConfigFile));
         ExtentTestManager.startTest(method.getName(),result.getMethod().getDescription());
-       // ExtentListener.writeLog("Open a Chrome Browser");
+        writeLog("Open a Chrome Browser");
     }
 
     @AfterMethod
@@ -56,19 +52,25 @@ public class BaseTest {
         switch (result.getStatus()) {
             case ITestResult.SUCCESS:
                 System.out.println("======PASS=====");
+                writeLog(Status.PASS,"TestCase PASSED");
                 break;
             case ITestResult.FAILURE:
                 System.out.println("======FAIL=====");
                 String testResult = result.getThrowable().toString();
-                writeLog(Status.FAIL,testResult,getScreenshot(getDriver()));
+                if(!Utils.globalProperties.getProperty("executionType").equalsIgnoreCase("api")) {
+                    writeLog(Status.FAIL, testResult, getScreenshot(getDriver()));
+                }
                 break;
             case ITestResult.SKIP:
                 System.out.println("======SKIP BLOCKED=====");
+                writeLog(Status.SKIP,"TestCase SKIPPED");
                 break;
             default:
                 throw new RuntimeException("Invalid status");
         }
-        closeBrowser();
+        if(!Utils.globalProperties.getProperty("executionType").equalsIgnoreCase("api")) {
+            closeBrowser();
+        }
     }
 
     @AfterSuite
